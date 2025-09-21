@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student ERP - Timetable</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#4da6ff;
+      --primary-soft:#e6f2ff;
+      --text:#555;
+      --border:#ddd;
+      --primary-dark:#1f7fe6; /* hover darker */
+    }
+    .font-poppins{ font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif; }
+    .font-roboto{ font-family:"Roboto",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif; }
+    .btn-primary{
+      background-image: linear-gradient(135deg, var(--primary), #3396ff);
+      color:#fff;
+      transition: transform .06s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .btn-primary:hover{ filter: brightness(0.95); }
+    .btn-primary:active{ transform: translateY(1px); }
+    .btn-outline{
+      background:#fff;
+      color:var(--primary-dark);
+      border:1px solid var(--primary);
+    }
+    .shadow-soft{ box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+    .card{ border-radius:20px; background:#fff; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+    .th-blue{ background: var(--primary-soft); color: var(--text); font-weight:700; }
+    .border-light{ border-color: var(--border) !important; }
+    .tooltip{
+      position:absolute; inset:auto auto calc(100% + 8px) 0;
+      background:#111827; color:#fff; padding:8px 10px; border-radius:10px;
+      white-space:nowrap; font-size:12px; line-height:1.2; box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      transform-origin:bottom left; opacity:0; transform: translateY(6px) scale(.98);
+      transition: opacity .15s ease, transform .15s ease;
+      z-index:20;
+    }
+    .class-cell:hover .tooltip{ opacity:1; transform: translateY(0) scale(1); }
+    .sticky-header{ position:sticky; top:0; background:#fff; z-index:10; border-bottom:1px solid rgba(0,0,0,0.05); }
+    .sticky-tools{ position:sticky; top:0; z-index:20; }
+    .day-highlight{ background: var(--primary-soft); }
+    .dropdown{ position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.12); overflow:hidden; min-width:180px; }
+    .dropdown a, .dropdown button{ display:block; width:100%; text-align:left; padding:10px 12px; color:var(--text); background:#fff; }
+    .dropdown a:hover, .dropdown button:hover{ background:#f7fbff; color:#111; }
+    .icon-btn{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid #eaeaea; background:#fff; transition: background .2s ease; }
+    .icon-btn:hover{ background:#f8fafc; }
+    /* Tables */
+    table{ border-collapse: separate; border-spacing:0; }
+    th, td{ border:1px solid var(--border); }
+    th{ font-weight:700; }
+    /* Print styles */
+    @media print{
+      body{ color:#000; }
+      nav, .no-print{ display:none !important; }
+      .card{ box-shadow:none !important; }
+      .printing-hide{ display:none !important; }
+      .print-target{ display:block !important; }
+      body.printing *:not(.print-target):not(.print-target *){
+        display:none !important;
+      }
+      .print-target{ position:static !important; inset:auto !important; width:auto !important; height:auto !important; overflow:visible !important; }
+    }
+  </style>
+</head>
+<body class="bg-white text-[var(--text)] font-roboto">
+  <!-- Top Navigation -->
+  <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm z-40">
+    <div class="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl ">
+            <!-- Simple logo -->
+            <image src="logo.png" >
+              
+          </image>
+          
+          
+          </span>
+          <div class="leading-tight">
+        <span class="hidden sm:inline text-lg font-poppins font-semibold tracking-wide">Student ERP</span>
+        <div class="text-xs text-slate-500 -mt-0.5">Campus Portal</div>
+        </div>
+      </div>
+      <h1 class="text-xl sm:text-2xl font-poppins font-bold">Timetable</h1>
+      <div class="flex items-center gap-2">
+        <button id="btnNotifications" class="icon-btn relative" aria-label="Notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0119.5 9.75v-.75a7.5 7.5 0 10-15 0v.75c0 1.97-.722 3.887-1.811 5.347.878.332 1.79.608 2.727.824m9.441 1.161a8.973 8.973 0 01-6.357 0m6.357 0a3 3 0 11-6.357 0" />
+          </svg>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+        </button>
+        <button id="btnProfile" class="icon-btn" aria-label="Profile">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 19.5a8.999 8.999 0 0115 0" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-5 pt-24 pb-16 space-y-10">
+    <!-- Weekly Timetable Card -->
+    <section id="weeklyCard" class="card overflow-hidden">
+      <!-- Card Header (sticky on mobile) -->
+      <div class="sticky-header px-5 sm:px-6 py-4 flex items-center justify-between">
+        <div>
+          <h2 class="font-poppins font-bold text-xl">Weekly Timetable</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Your classes from Monday to Saturday</p>
+        </div>
+        <div class="relative">
+          <div class="hidden sm:flex items-center gap-2">
+            <button id="btnWeeklyPrint" class="btn-primary px-4 py-2 rounded-xl flex items-center gap-2 shadow-soft">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 9V2h12v7h2a2 2 0 012 2v5h-4v4H8v-4H4v-5a2 2 0 012-2h0zm10-5H8v5h8V4zM8 20h8v-4H8v4zM4 13h16v1H4v-1z"/>
+              </svg>
+              <span>Print / Download</span>
+            </button>
+            <button id="btnWeeklyMenu" class="icon-btn" aria-label="More actions">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </button>
+          </div>
+          <!-- Compact single button on mobile (sticky within header) -->
+          <div class="sm:hidden sticky-tools">
+            <button id="btnWeeklyPrintMobile" class="btn-primary px-3 py-2 rounded-xl flex items-center gap-1 shadow-soft">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 9V2h12v7h2a2 2 0 012 2v5h-4v4H8v-4H4v-5a2 2 0 012-2h0zm10-5H8v5h8V4zM8 20h8v-4H8v4zM4 13h16v1H4v-1z"/>
+              </svg>
+              <span class="text-sm">Print</span>
+            </button>
+          </div>
+          <!-- Dropdown -->
+          <div id="weeklyDropdown" class="dropdown hidden">
+            <button id="actWeeklyPrint" class="text-sm">Print / Save as PDF</button>
+            <button id="actWeeklyCSV" class="text-sm">Download as CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div id="weeklyWrapper" class="px-2 sm:px-4 pb-5">
+        <div class="overflow-x-auto">
+          <div id="weeklyGrid" class="min-w-[980px]"></div>
+          <p class="mt-3 text-xs text-gray-500 px-2">Tip: Hover over a class to view instructor details. The current day is highlighted.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Exam Timetable Card -->
+    <section id="examCard" class="card overflow-hidden">
+      <div class="sticky-header px-5 sm:px-6 py-4 flex items-center justify-between">
+        <div>
+          <h2 class="font-poppins font-bold text-xl">Exam Timetable</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Upcoming exams and venues</p>
+        </div>
+        <!-- Top-right action for mobile visibility consistency -->
+        <div class="relative">
+          <div class="hidden sm:flex items-center gap-2">
+            <button id="btnExamPrint" class="btn-primary px-4 py-2 rounded-xl flex items-center gap-2 shadow-soft">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 9V2h12v7h2a2 2 0 012 2v5h-4v4H8v-4H4v-5a2 2 0 012-2h0zm10-5H8v5h8V4zM8 20h8v-4H8v4zM4 13h16v1H4v-1z"/>
+              </svg>
+              <span>Print / Download</span>
+            </button>
+            <button id="btnExamMenu" class="icon-btn" aria-label="More actions">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </button>
+          </div>
+          <div class="sm:hidden sticky-tools">
+            <button id="btnExamPrintMobile" class="btn-primary px-3 py-2 rounded-xl flex items-center gap-1 shadow-soft">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 9V2h12v7h2a2 2 0 012 2v5h-4v4H8v-4H4v-5a2 2 0 012-2h0zm10-5H8v5h8V4zM8 20h8v-4H8v4zM4 13h16v1H4v-1z"/>
+              </svg>
+              <span class="text-sm">Print</span>
+            </button>
+          </div>
+          <!-- Dropdown -->
+          <div id="examDropdown" class="dropdown hidden">
+            <button id="actExamPrint" class="text-sm">Print / Save as PDF</button>
+            <button id="actExamCSV" class="text-sm">Download as CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Table -->
+      <div class="px-5 sm:px-6 py-5">
+        <div class="hidden sm:block overflow-x-auto">
+          <table id="examTable" class="w-full rounded-[20px] overflow-hidden border border-light">
+            <thead>
+              <tr>
+                <th class="th-blue px-4 py-3 text-left">Date</th>
+                <th class="th-blue px-4 py-3 text-left">Subject</th>
+                <th class="th-blue px-4 py-3 text-left">Course Code</th>
+                <th class="th-blue px-4 py-3 text-left">Exam Type</th>
+                <th class="th-blue px-4 py-3 text-left">Time</th>
+                <th class="th-blue px-4 py-3 text-left">Venue</th>
+              </tr>
+            </thead>
+            <tbody id="examTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div id="examCards" class="sm:hidden space-y-3"></div>
+
+        <!-- Bottom export controls -->
+        <div class="mt-5 flex items-center justify-end gap-2">
+          <button id="btnExamBottomPrint" class="btn-primary px-4 py-2 rounded-xl flex items-center gap-2 shadow-soft no-print">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 9V2h12v7h2a2 2 0 012 2v5h-4v4H8v-4H4v-5a2 2 0 012-2h0zm10-5H8v5h8V4zM8 20h8v-4H8v4zM4 13h16v1H4v-1z"/>
+            </svg>
+            <span>Print / Download</span>
+          </button>
+          <button id="btnExamBottomCSV" class="btn-outline px-4 py-2 rounded-xl flex items-center gap-2 no-print">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[var(--primary-dark)]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 16l4-5h-3V4h-2v7H8l4 5zm6 2H6v2h12v-2z"/>
+            </svg>
+            <span>Download CSV</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Sample Data
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const timeSlots = [
+      "08:00–09:00","09:00–10:00","10:00–11:00","11:00–12:00","13:00–14:00","14:00–15:00"
+    ];
+
+    // timetable[time][day] => class or null
+    const timetable = {
+      "08:00–09:00": {
+        "Monday":  { code:"CS101", name:"Intro to CS", room:"A-101", instructor:"Dr. Priya Mehta" },
+        "Wednesday":{ code:"MA102", name:"Calculus II", room:"B-203", instructor:"Prof. Nikhil Rao" },
+        "Friday":  { code:"EN110", name:"Academic Writing", room:"C-112", instructor:"Ms. Sarah Lee" },
+      },
+      "09:00–10:00": {
+        "Monday":  { code:"MA102", name:"Calculus II", room:"B-203", instructor:"Prof. Nikhil Rao" },
+        "Tuesday": { code:"CS101", name:"Intro to CS", room:"A-101", instructor:"Dr. Priya Mehta" },
+        "Thursday":{ code:"EC105", name:"Microeconomics", room:"D-305", instructor:"Dr. Ahmed Khan" },
+        "Saturday":{ code:"PE120", name:"Fitness & Wellness", room:"Gym-1", instructor:"Coach Riya Shah" },
+      },
+      "10:00–11:00": {
+        "Tuesday": { code:"PH103", name:"Physics I", room:"Lab-2", instructor:"Dr. Karan Patel" },
+        "Thursday":{ code:"CS111", name:"Data Structures", room:"A-204", instructor:"Ms. Meera Joshi" },
+      },
+      "11:00–12:00": {
+        "Monday":  { code:"CS111", name:"Data Structures", room:"A-204", instructor:"Ms. Meera Joshi" },
+        "Wednesday":{ code:"PH103", name:"Physics I", room:"Lab-2", instructor:"Dr. Karan Patel" },
+        "Friday":  { code:"EC105", name:"Microeconomics", room:"D-305", instructor:"Dr. Ahmed Khan" },
+      },
+      "13:00–14:00": {
+        "Tuesday": { code:"EN110", name:"Academic Writing", room:"C-112", instructor:"Ms. Sarah Lee" },
+        "Thursday":{ code:"MA102", name:"Calculus II", room:"B-203", instructor:"Prof. Nikhil Rao" },
+        "Friday":  { code:"CS101", name:"Intro to CS", room:"A-101", instructor:"Dr. Priya Mehta" },
+      },
+      "14:00–15:00": {
+        "Wednesday":{ code:"EC105", name:"Microeconomics", room:"D-305", instructor:"Dr. Ahmed Khan" },
+        "Saturday":{ code:"PH103", name:"Physics I", room:"Lab-2", instructor:"Dr. Karan Patel" },
+      }
+    };
+
+    const exams = [
+      { date:"2025-10-02", subject:"Calculus II", code:"MA102", type:"Mid",   time:"09:00–11:00", venue:"Hall B" },
+      { date:"2025-10-10", subject:"Data Structures", code:"CS111", type:"Mid",   time:"13:00–15:00", venue:"Hall A" },
+      { date:"2025-11-05", subject:"Physics I",       code:"PH103", type:"Final", time:"10:00–12:00", venue:"Auditorium" },
+      { date:"2025-11-12", subject:"Microeconomics",  code:"EC105", type:"Final", time:"14:00–16:00", venue:"Hall C" }
+    ];
+
+    // Utility
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+    function formatDateHuman(iso){
+      const d = new Date(iso + "T00:00:00");
+      return d.toLocaleDateString(undefined, { weekday:"short", year:"numeric", month:"short", day:"numeric" });
+    }
+    function todayYMD(){
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = (d.getMonth()+1).toString().padStart(2,"0");
+      const day = d.getDate().toString().padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+
+    // Render Weekly Grid
+    function renderWeekly(){
+      const grid = $("#weeklyGrid");
+      grid.innerHTML = "";
+      // Build a grid-like table using CSS grid for better sticky behavior
+      const container = document.createElement("div");
+      container.className = "grid";
+      container.style.gridTemplateColumns = `160px repeat(${days.length}, minmax(140px,1fr))`;
+
+      // Header Row
+      const headerTime = document.createElement("div");
+      headerTime.className = "th-blue border border-light px-3 py-2 font-poppins sticky left-0 z-[5]";
+      headerTime.textContent = "Time";
+      container.appendChild(headerTime);
+
+      const today = new Date().getDay(); // 0 Sun - 6 Sat
+      const dayIndexMap = {1:0,2:1,3:2,4:3,5:4,6:5}; // Mon..Sat => 0..5
+
+      days.forEach((day, idx) => {
+        const th = document.createElement("div");
+        th.className = "th-blue border border-light px-3 py-2 font-poppins font-bold text-center";
+        th.textContent = day;
+        if ((today>=1 && today<=6) && idx === dayIndexMap[today]) {
+          th.classList.add("day-highlight");
+        }
+        container.appendChild(th);
+      });
+
+      // Rows
+      timeSlots.forEach(slot => {
+        // Time cell
+        const timeCell = document.createElement("div");
+        timeCell.className = "border border-light px-3 py-2 font-medium bg-white sticky left-0 z-[4]";
+        timeCell.textContent = slot;
+        container.appendChild(timeCell);
+
+        days.forEach((day, idx) => {
+          const cell = document.createElement("div");
+          const base = "relative border border-light px-3 py-3 min-h-[70px] group";
+          const isTodayCol = (today>=1 && today<=6) && idx === dayIndexMap[today];
+          cell.className = base + (isTodayCol ? " day-highlight" : " bg-white");
+
+          const cls = (timetable[slot] && timetable[slot][day]) ? timetable[slot][day] : null;
+          if (cls){
+            const wrap = document.createElement("div");
+            wrap.className = "class-cell";
+            wrap.innerHTML = `
+              <div class="font-semibold text-[15px]">${cls.code}</div>
+              <div class="text-sm text-gray-600">${cls.name}</div>
+              <div class="text-xs text-gray-500 mt-0.5">Room ${cls.room}</div>
+              <div class="tooltip rounded-lg">
+                <div class="font-medium">${cls.name} (${cls.code})</div>
+                <div class="text-[11px] opacity-90 mt-1">Instructor: ${cls.instructor}</div>
+                <div class="text-[11px] opacity-90">Venue: ${cls.room}</div>
+                <div class="text-[11px] opacity-90">Time: ${slot}</div>
+              </div>
+            `;
+            cell.appendChild(wrap);
+          }else{
+            cell.innerHTML = `<div class="text-xs text-gray-400 italic">—</div>`;
+          }
+          container.appendChild(cell);
+        });
+      });
+
+      grid.appendChild(container);
+    }
+
+    // Render Exams (table + mobile cards) and highlight upcoming
+    function renderExams(){
+      const tbody = $("#examTableBody");
+      const cards = $("#examCards");
+      tbody.innerHTML = "";
+      cards.innerHTML = "";
+
+      const today = todayYMD();
+      const upcomingIndex = exams
+        .map((e, i) => ({i, d:e.date}))
+        .filter(x => x.d >= today)
+        .sort((a,b)=> a.d.localeCompare(b.d))[0]?.i;
+
+      exams.forEach((ex, idx) => {
+        const isUpcoming = (idx === upcomingIndex);
+
+        // Table row
+        const tr = document.createElement("tr");
+        tr.className = isUpcoming ? "bg-[var(--primary-soft)]" : "bg-white";
+        tr.innerHTML = `
+          <td class="px-4 py-3">${formatDateHuman(ex.date)}</td>
+          <td class="px-4 py-3">${ex.subject}</td>
+          <td class="px-4 py-3">${ex.code}</td>
+          <td class="px-4 py-3">${ex.type}</td>
+          <td class="px-4 py-3">${ex.time}</td>
+          <td class="px-4 py-3">${ex.venue}</td>
+        `;
+        tbody.appendChild(tr);
+
+        // Mobile card
+        const card = document.createElement("div");
+        card.className = "border border-light rounded-2xl p-4 " + (isUpcoming ? "bg-[var(--primary-soft)]" : "bg-white");
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="font-poppins font-semibold">${ex.subject}</div>
+            <span class="text-xs px-2 py-1 rounded-full ${ex.type==='Final'?'bg-blue-100 text-blue-700':'bg-emerald-100 text-emerald-700'}">${ex.type}</span>
+          </div>
+          <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+            <div class="text-gray-500">Course</div><div class="text-gray-800">${ex.code}</div>
+            <div class="text-gray-500">Date</div><div class="text-gray-800">${formatDateHuman(ex.date)}</div>
+            <div class="text-gray-500">Time</div><div class="text-gray-800">${ex.time}</div>
+            <div class="text-gray-500">Venue</div><div class="text-gray-800">${ex.venue}</div>
+          </div>
+        `;
+        cards.appendChild(card);
+      });
+    }
+
+    // Print helpers: print only a specific section
+    function printSection(sectionId){
+      const section = document.getElementById(sectionId);
+      if(!section) return;
+      document.body.classList.add("printing");
+      // Mark the chosen section (clone to ensure it keeps layout bounds)
+      section.classList.add("print-target");
+      // Trigger print
+      setTimeout(()=> {
+        window.print();
+        // Cleanup
+        setTimeout(()=>{
+          document.body.classList.remove("printing");
+          section.classList.remove("print-target");
+        }, 200);
+      }, 60);
+    }
+
+    // CSV helpers
+    function downloadCSV(filename, rows){
+      const csv = rows.map(r => r.map(v => {
+        const s = String(v ?? "");
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+      }).join(",")).join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function weeklyToCSV(){
+      const header = ["Time", ...days];
+      const rows = [header];
+      timeSlots.forEach(slot=>{
+        const row = [slot];
+        days.forEach(day=>{
+          const cls = (timetable[slot] && timetable[slot][day]) ? timetable[slot][day] : null;
+          row.push(cls ? `${cls.code} - ${cls.name} (Room ${cls.room})` : "");
+        });
+        rows.push(row);
+      });
+      return rows;
+    }
+
+    function examsToCSV(){
+      const header = ["Date","Subject","Course Code","Exam Type","Time","Venue"];
+      const rows = [header];
+      exams.forEach(ex=>{
+        rows.push([ex.date, ex.subject, ex.code, ex.type, ex.time, ex.venue]);
+      });
+      return rows;
+    }
+
+    // Dropdown handling
+    function setupDropdown(triggerBtn, dropdownEl){
+      let open = false;
+      const close = ()=>{ dropdownEl.classList.add("hidden"); open=false; };
+      const toggle = (e)=>{ e.preventDefault(); open = !open; dropdownEl.classList.toggle("hidden", !open); };
+      triggerBtn.addEventListener("click", toggle);
+      document.addEventListener("click", (e)=>{
+        if(open && !dropdownEl.contains(e.target) && !triggerBtn.contains(e.target)){
+          close();
+        }
+      });
+      return { close };
+    }
+
+    // Init
+    renderWeekly();
+    renderExams();
+
+    // Current day highlight is handled during renderWeekly()
+
+    // Weekly actions
+    const weeklyMenu = setupDropdown($("#btnWeeklyMenu"), $("#weeklyDropdown"));
+    $("#btnWeeklyPrint").addEventListener("click", (e)=>{ e.preventDefault(); printSection("weeklyCard"); });
+    $("#btnWeeklyPrintMobile").addEventListener("click", (e)=>{ e.preventDefault(); printSection("weeklyCard"); });
+    $("#actWeeklyPrint").addEventListener("click", (e)=>{ e.preventDefault(); weeklyMenu.close(); printSection("weeklyCard"); });
+    $("#actWeeklyCSV").addEventListener("click", (e)=>{ e.preventDefault(); weeklyMenu.close(); downloadCSV("weekly-timetable.csv", weeklyToCSV()); });
+
+    // Exam actions
+    const examMenu = setupDropdown($("#btnExamMenu"), $("#examDropdown"));
+    const doExamPrint = (e)=>{ e.preventDefault(); printSection("examCard"); };
+    $("#btnExamPrint").addEventListener("click", doExamPrint);
+    $("#btnExamPrintMobile").addEventListener("click", doExamPrint);
+    $("#btnExamBottomPrint").addEventListener("click", doExamPrint);
+    $("#actExamPrint").addEventListener("click", (e)=>{ e.preventDefault(); examMenu.close(); printSection("examCard"); });
+    $("#actExamCSV").addEventListener("click", (e)=>{ e.preventDefault(); examMenu.close(); downloadCSV("exam-timetable.csv", examsToCSV()); });
+    $("#btnExamBottomCSV").addEventListener("click", (e)=>{ e.preventDefault(); downloadCSV("exam-timetable.csv", examsToCSV()); });
+
+    // Non-navigating info buttons (demo)
+    $("#btnNotifications").addEventListener("click", (e)=>{
+      e.preventDefault();
+      alert("No new notifications right now.");
+    });
+    $("#btnProfile").addEventListener("click", (e)=>{
+      e.preventDefault();
+      alert("Profile preview is a demo in this Canva Code.");
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'982237ee10165857',t:'MTc1ODM4MDcwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
