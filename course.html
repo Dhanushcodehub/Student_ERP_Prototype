@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student ERP – Course Registration</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#4da6ff;
+      --brand-light:#e6f2ff;
+      --brand-hover:#3d94f7;
+      --brand-dark:#2f80ff;
+      --text:#555;
+      --border:#ddd;
+    }
+    html, body{
+      background:#fff; color:var(--text);
+      font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    .heading, .heading *{
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-weight: 700;
+      color:#111;
+    }
+    .card{
+      border-radius:20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      border:1px solid #f3f4f6;
+      background:#fff;
+    }
+    .btn-primary{
+      background-image: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      color:#fff;
+      transition: all .2s ease;
+    }
+    .btn-primary:hover{
+      background-image: linear-gradient(135deg, var(--brand-hover) 0%, #2563eb 100%);
+      transform: translateY(-1px);
+    }
+    .btn-outline-red{
+      color:#ef4444;
+      border:1px solid #ef4444;
+      background:#fff;
+      transition: all .2s ease;
+    }
+    .btn-outline-red:hover{
+      background:#fee2e2;
+    }
+    .thin-divider{
+      border-bottom:1px solid var(--border);
+    }
+    .table-header{
+      background: var(--brand-light);
+    }
+    .row-selected{
+      background: var(--brand-light);
+    }
+    .pill{
+      background: #f1f5f9;
+      color:#0f172a;
+    }
+    /* Smooth scrolling for scrollable areas */
+    .nice-scroll{
+      scrollbar-width: thin;
+      scrollbar-color: #c7d2fe #f1f5f9;
+    }
+    .nice-scroll::-webkit-scrollbar{ height:10px; width:10px; }
+    .nice-scroll::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:999px; }
+    .nice-scroll::-webkit-scrollbar-track{ background:#f1f5f9; border-radius:999px; }
+
+    /* Modal backdrop blur */
+    .backdrop{
+      background: rgba(15,23,42,0.45);
+      backdrop-filter: blur(6px);
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- Top Navigation -->
+  <nav class="fixed top-0 left-0 right-0 bg-white z-40 border-b border-[var(--border)]">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Left: Logo -->
+      <div class="flex items-center gap-3">
+        <!-- Simple SVG logo -->
+        <div class="w-10 h-10 rounded-2xl bg-[var(--brand-light)] flex items-center justify-center border border-[var(--border)]">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="#4da6ff" stroke-width="1.5"/>
+            <path d="M7 13h10M7 17h10M7 9h5" stroke="#4da6ff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="heading text-lg">Course Registration</div>
+      </div>
+
+      <!-- Right: Icons -->
+      <div class="relative flex items-center gap-3">
+        <!-- Notifications -->
+        <button id="btnNotify" class="relative p-2 rounded-xl border border-[var(--border)] hover:bg-[var(--brand-light)]" aria-label="Notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0119.5 9.75v-.75a7.5 7.5 0 10-15 0v.75c0 1.97-.722 3.887-1.811 5.347.878.332 1.79.608 2.727.824m9.441 1.161a8.973 8.973 0 01-6.357 0m6.357 0a3 3 0 11-6.357 0" />
+          </svg>
+        </button>
+        <div id="notifyPanel" class="hidden absolute right-14 top-14 card w-64 p-4">
+          <div class="heading text-sm mb-2">Notifications</div>
+          <p class="text-sm text-slate-600">No new notifications</p>
+        </div>
+
+        <!-- Profile -->
+        <button id="btnProfile" class="p-2 rounded-xl border border-[var(--border)] hover:bg-[var(--brand-light)]" aria-label="Profile">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 19.5a8.999 8.999 0 0115 0" />
+          </svg>
+        </button>
+        <div id="profilePanel" class="hidden absolute right-0 top-14 card w-60 p-4">
+          <div class="heading text-sm mb-2">Student</div>
+          <p class="text-sm">Alex Johnson</p>
+          <div class="mt-3 flex gap-2">
+            <a href="#" class="text-[var(--brand)] text-sm underline" onclick="event.preventDefault()">Profile</a>
+            <span class="text-slate-400">•</span>
+            <span class="text-slate-400 text-sm">Logout (demo)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+
+    <!-- Academic Progress Summary -->
+    <section class="card p-6 sm:p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center gap-8">
+        <!-- Left: Stats -->
+        <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div class="rounded-2xl border border-[var(--border)] p-4">
+            <div class="text-sm text-slate-500">Current Term</div>
+            <div id="termLabel" class="heading text-xl mt-1">Fall 2025</div>
+          </div>
+          <div class="rounded-2xl border border-[var(--border)] p-4">
+            <div class="text-sm text-slate-500">Credits Earned</div>
+            <div id="creditsEarned" class="heading text-xl mt-1">78</div>
+          </div>
+          <div class="rounded-2xl border border-[var(--border)] p-4">
+            <div class="text-sm text-slate-500">Registered This Term</div>
+            <div id="creditsRegistered" class="heading text-xl mt-1">0</div>
+          </div>
+          <div class="rounded-2xl border border-[var(--border)] p-4">
+            <div class="text-sm text-slate-500">Credits Remaining</div>
+            <div id="creditsRemaining" class="heading text-xl mt-1">42</div>
+          </div>
+        </div>
+
+        <!-- Right: Circular Progress -->
+        <div class="flex items-center justify-center">
+          <div class="relative w-40 h-40">
+            <svg class="w-40 h-40" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" stroke="#eef2f7" stroke-width="10" fill="none"></circle>
+              <circle id="progressArc" cx="50" cy="50" r="42" stroke="#4da6ff" stroke-linecap="round" stroke-width="10" fill="none" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)"></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div id="progressPct" class="heading text-2xl">0%</div>
+              <div class="text-xs text-slate-500 mt-1">Program Completion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Available Courses (Left 70%) -->
+      <div class="lg:col-span-2">
+        <div class="card p-6 sm:p-7 mb-6">
+          <div class="flex flex-col md:flex-row md:items-end gap-4 md:gap-3">
+            <div class="flex-1">
+              <label class="block text-sm text-slate-600 mb-1" for="searchInput">Search by code or name</label>
+              <input id="searchInput" type="text" placeholder="e.g., CS101 or Data Structures" class="w-full rounded-xl border border-[var(--border)] px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-600 mb-1" for="deptFilter">Department</label>
+              <select id="deptFilter" class="rounded-xl border border-[var(--border)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
+                <option value="All">All</option>
+                <option>CS</option>
+                <option>EE</option>
+                <option>ME</option>
+                <option>MATH</option>
+                <option>BUS</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-600 mb-1" for="creditFilter">Credits</label>
+              <select id="creditFilter" class="rounded-xl border border-[var(--border)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
+                <option value="All">All</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-slate-600 mb-1" for="typeFilter">Type</label>
+              <select id="typeFilter" class="rounded-xl border border-[var(--border)] px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]">
+                <option value="All">All</option>
+                <option>Core</option>
+                <option>Elective</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table card -->
+        <div class="card p-0 overflow-hidden">
+
+          <!-- Desktop / Tablet Table -->
+          <div class="hidden md:block">
+            <table class="w-full text-sm">
+              <thead class="table-header">
+                <tr class="text-left text-slate-700">
+                  <th class="py-3 pl-5 pr-3 w-10 border-b border-[var(--border)]"></th>
+                  <th class="py-3 px-3 border-b border-[var(--border)]">Course Code</th>
+                  <th class="py-3 px-3 border-b border-[var(--border)]">Course Title</th>
+                  <th class="py-3 px-3 border-b border-[var(--border)]">Instructor</th>
+                  <th class="py-3 px-3 border-b border-[var(--border)]">Credits</th>
+                  <th class="py-3 px-3 border-b border-[var(--border)]">Schedule</th>
+                  <th class="py-3 pr-5 pl-3 border-b border-[var(--border)] text-right">Action</th>
+                </tr>
+              </thead>
+            </table>
+            <div id="tableBodyWrap" class="nice-scroll" style="max-height: 420px; overflow-y:auto;">
+              <table class="w-full text-sm">
+                <tbody id="courseTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mobile Cards -->
+          <div id="courseCardsMobile" class="md:hidden p-4 space-y-4 nice-scroll" style="max-height: 520px; overflow-y:auto;">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Registered Courses (Right 30%) -->
+      <aside class="card p-6 sm:p-7 h-fit lg:sticky lg:top-24">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="heading text-lg">My Registered Courses</h2>
+          <span id="registeredCount" class="text-xs pill px-2.5 py-1 rounded-full border border-[var(--border)]">0 courses</span>
+        </div>
+        <div id="registeredList" class="space-y-3">
+          <!-- Filled dynamically -->
+        </div>
+        <div class="mt-5 thin-divider pt-4 flex items-center justify-between">
+          <span class="text-sm text-slate-600">Total Credits</span>
+          <span id="registeredTotal" class="heading text-xl">0</span>
+        </div>
+        <button id="btnConfirm" class="mt-5 w-full btn-primary rounded-2xl px-5 py-3.5 text-base shadow hover:shadow-md">
+          Confirm Registration
+        </button>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center backdrop p-4">
+    <div class="card w-full max-w-xl p-6 sm:p-8">
+      <div class="flex items-start justify-between mb-4">
+        <h3 class="heading text-xl">Registration Summary</h3>
+        <button id="modalClose" class="text-slate-500 hover:text-slate-700">✖</button>
+      </div>
+      <div id="modalBody" class="space-y-4">
+        <!-- Injected -->
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button id="modalClose2" class="rounded-xl px-4 py-2 border border-[var(--border)]">Close</button>
+        <button id="modalDone" class="btn-primary rounded-xl px-4 py-2">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --------------------------
+    // Sample Data
+    // --------------------------
+    const TOTAL_REQUIRED = 120;
+    const STATE = {
+      term: "Fall 2025",
+      earned: 78,
+      registered: [], // array of course ids
+      selected: new Set(), // checkbox selections
+      filters: { search:"", dept:"All", credits:"All", type:"All" }
+    };
+
+    const COURSES = [
+      { id:1, code:"CS101", title:"Introduction to Computer Science", dept:"CS", instructor:"Dr. Rivera", credits:3, type:"Core", schedule:"Mon & Wed 10:00–11:30" },
+      { id:2, code:"CS202", title:"Data Structures", dept:"CS", instructor:"Prof. Lee", credits:4, type:"Core", schedule:"Tue & Thu 09:00–10:45" },
+      { id:3, code:"EE210", title:"Circuits I", dept:"EE", instructor:"Dr. Patel", credits:3, type:"Core", schedule:"Mon & Wed 13:00–14:15" },
+      { id:4, code:"MATH240", title:"Linear Algebra", dept:"MATH", instructor:"Dr. Chen", credits:3, type:"Core", schedule:"Tue & Thu 11:00–12:15" },
+      { id:5, code:"BUS110", title:"Principles of Management", dept:"BUS", instructor:"Dr. Gomez", credits:3, type:"Elective", schedule:"Fri 09:00–11:45" },
+      { id:6, code:"ME130", title:"Statics", dept:"ME", instructor:"Dr. Rossi", credits:3, type:"Core", schedule:"Mon & Wed 15:00–16:15" },
+      { id:7, code:"CS305", title:"Web Application Development", dept:"CS", instructor:"Dr. Nguyen", credits:3, type:"Elective", schedule:"Tue 14:00–17:00" },
+      { id:8, code:"EE330", title:"Signals & Systems", dept:"EE", instructor:"Prof. Ahmed", credits:4, type:"Elective", schedule:"Thu 14:00–17:00" }
+    ];
+
+    // --------------------------
+    // Utilities
+    // --------------------------
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    function isRegistered(id){
+      return STATE.registered.includes(id);
+    }
+    function findCourse(id){ return COURSES.find(c => c.id === id); }
+
+    function filteredCourses(){
+      const s = STATE.filters.search.trim().toLowerCase();
+      const d = STATE.filters.dept;
+      const cr = STATE.filters.credits;
+      const t = STATE.filters.type;
+
+      return COURSES.filter(c => {
+        const matchesSearch = s === "" || c.code.toLowerCase().includes(s) || c.title.toLowerCase().includes(s);
+        const matchesDept = d === "All" || c.dept === d;
+        const matchesCredits = cr === "All" || String(c.credits) === cr;
+        const matchesType = t === "All" || c.type === t;
+        return matchesSearch && matchesDept && matchesCredits && matchesType;
+      });
+    }
+
+    // --------------------------
+    // Rendering
+    // --------------------------
+    function renderSummary(){
+      $("#termLabel").textContent = STATE.term;
+      $("#creditsEarned").textContent = STATE.earned;
+      const regCredits = STATE.registered.reduce((sum, id) => sum + findCourse(id).credits, 0);
+      $("#creditsRegistered").textContent = regCredits;
+      const remaining = Math.max(0, TOTAL_REQUIRED - (STATE.earned + regCredits));
+      $("#creditsRemaining").textContent = remaining;
+
+      const pct = Math.min(100, Math.round(((STATE.earned + regCredits) / TOTAL_REQUIRED) * 100));
+      $("#progressPct").textContent = pct + "%";
+      // Progress circle
+      const circumference = 2 * Math.PI * 42; // r=42
+      const offset = circumference * (1 - pct / 100);
+      const arc = $("#progressArc");
+      arc.setAttribute("stroke-dasharray", circumference.toFixed(1));
+      arc.setAttribute("stroke-dashoffset", offset.toFixed(1));
+    }
+
+    function courseRow(c){
+      const selected = STATE.selected.has(c.id);
+      const disabled = isRegistered(c.id);
+      return `
+        <tr data-id="${c.id}" class="thin-divider ${selected ? 'row-selected' : ''}">
+          <td class="pl-5 pr-3 py-3 align-top">
+            <input type="checkbox" ${selected ? 'checked' : ''} class="selectCourse cursor-pointer w-4 h-4 rounded border border-[var(--border)]">
+          </td>
+          <td class="px-3 py-3 align-top">
+            <div class="heading text-sm">${c.code}</div>
+            <div class="text-xs text-slate-500">${c.dept} • ${c.type}</div>
+          </td>
+          <td class="px-3 py-3 align-top">
+            <div class="text-[15px] text-slate-800">${c.title}</div>
+          </td>
+          <td class="px-3 py-3 align-top">${c.instructor}</td>
+          <td class="px-3 py-3 align-top">${c.credits}</td>
+          <td class="px-3 py-3 align-top">${c.schedule}</td>
+          <td class="pr-5 pl-3 py-3 align-top text-right">
+            ${disabled
+              ? `<span class="text-xs pill px-2 py-1 rounded-full inline-block border border-[var(--border)] bg-[var(--brand-light)]">Added</span>`
+              : `<button class="addBtn btn-primary rounded-xl px-3.5 py-2 text-sm"><span class="mr-1">➕</span>Add</button>`
+            }
+          </td>
+        </tr>
+      `;
+    }
+
+    function courseCardMobile(c){
+      const selected = STATE.selected.has(c.id);
+      const disabled = isRegistered(c.id);
+      return `
+        <div data-id="${c.id}" class="rounded-2xl border ${selected ? 'bg-[var(--brand-light)]' : 'bg-white'} border-[var(--border)] p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="heading text-sm">${c.code}</div>
+              <div class="text-[15px] text-slate-800">${c.title}</div>
+              <div class="text-xs text-slate-500 mt-1">${c.dept} • ${c.type} • ${c.credits} cr</div>
+              <div class="text-xs text-slate-600 mt-1">${c.instructor} • ${c.schedule}</div>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+              <label class="flex items-center gap-2 text-xs text-slate-600">
+                <input type="checkbox" ${selected ? 'checked' : ''} class="selectCourseMobile cursor-pointer w-4 h-4 rounded border border-[var(--border)]">
+                Select
+              </label>
+              ${disabled
+                ? `<span class="text-xs pill px-2 py-1 rounded-full inline-block border border-[var(--border)] bg-[var(--brand-light)]">Added</span>`
+                : `<button class="addBtnMobile btn-primary rounded-xl px-3 py-1.5 text-sm"><span class="mr-1">➕</span>Add</button>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCourses(){
+      // Desktop table
+      const list = filteredCourses().map(courseRow).join("");
+      $("#courseTableBody").innerHTML = list;
+
+      // Mobile cards
+      const mlist = filteredCourses().map(courseCardMobile).join("");
+      $("#courseCardsMobile").innerHTML = mlist;
+
+      // Bind events for table
+      $$("#courseTableBody tr").forEach(tr => {
+        const id = Number(tr.getAttribute("data-id"));
+        const cb = $(".selectCourse", tr);
+        if(cb){
+          cb.addEventListener("change", e=>{
+            if(e.target.checked) STATE.selected.add(id);
+            else STATE.selected.delete(id);
+            tr.classList.toggle("row-selected", e.target.checked);
+            // Mirror selection to mobile if visible later
+          });
+        }
+        const addBtn = $(".addBtn", tr);
+        if(addBtn){
+          addBtn.addEventListener("click", ()=>{
+            addCourse(id);
+          });
+        }
+      });
+
+      // Bind events for mobile cards
+      $$("#courseCardsMobile > div").forEach(card => {
+        const id = Number(card.getAttribute("data-id"));
+        const cb = $(".selectCourseMobile", card);
+        if(cb){
+          cb.addEventListener("change", e=>{
+            if(e.target.checked) STATE.selected.add(id);
+            else STATE.selected.delete(id);
+            card.classList.toggle("bg-[var(--brand-light)]", e.target.checked);
+          });
+        }
+        const addBtn = $(".addBtnMobile", card);
+        if(addBtn){
+          addBtn.addEventListener("click", ()=>{
+            addCourse(id);
+          });
+        }
+      });
+    }
+
+    function renderRegistered(){
+      const list = STATE.registered.map(id => findCourse(id));
+      const container = $("#registeredList");
+      if(list.length === 0){
+        container.innerHTML = `<div class="text-sm text-slate-500">No courses added yet. Use the ➕ Add buttons to build your schedule.</div>`;
+      } else {
+        container.innerHTML = list.map(c => `
+          <div class="flex items-center justify-between rounded-xl border border-[var(--border)] p-3">
+            <div>
+              <div class="heading text-sm">${c.code}</div>
+              <div class="text-sm text-slate-700">${c.title}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${c.credits} credits</div>
+            </div>
+            <button class="dropBtn btn-outline-red rounded-xl px-3 py-1.5 text-sm" data-id="${c.id}">❌ Drop</button>
+          </div>
+        `).join("");
+      }
+
+      // Count + total
+      $("#registeredCount").textContent = `${list.length} ${list.length === 1 ? 'course' : 'courses'}`;
+      const total = list.reduce((sum,c)=>sum+c.credits,0);
+      $("#registeredTotal").textContent = total;
+
+      // Drop handlers
+      $$("#registeredList .dropBtn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = Number(btn.getAttribute("data-id"));
+          dropCourse(id);
+        });
+      });
+    }
+
+    // --------------------------
+    // Actions
+    // --------------------------
+    function addCourse(id){
+      if(isRegistered(id)) return;
+      STATE.registered.push(id);
+      renderCourses(); // refresh add buttons state
+      renderRegistered();
+      renderSummary();
+    }
+
+    function dropCourse(id){
+      STATE.registered = STATE.registered.filter(x => x !== id);
+      renderCourses();
+      renderRegistered();
+      renderSummary();
+    }
+
+    // --------------------------
+    // Filters
+    // --------------------------
+    function bindFilters(){
+      $("#searchInput").addEventListener("input", (e)=>{
+        STATE.filters.search = e.target.value;
+        renderCourses();
+      });
+      $("#deptFilter").addEventListener("change", (e)=>{
+        STATE.filters.dept = e.target.value;
+        renderCourses();
+      });
+      $("#creditFilter").addEventListener("change", (e)=>{
+        STATE.filters.credits = e.target.value;
+        renderCourses();
+      });
+      $("#typeFilter").addEventListener("change", (e)=>{
+        STATE.filters.type = e.target.value;
+        renderCourses();
+      });
+    }
+
+    // --------------------------
+    // Modal
+    // --------------------------
+    function openModal(){
+      const list = STATE.registered.map(id => findCourse(id));
+      const total = list.reduce((s,c)=>s+c.credits,0);
+      if(list.length === 0){
+        $("#modalBody").innerHTML = `<p class="text-slate-600">You haven’t added any courses yet.</p>`;
+      } else {
+        $("#modalBody").innerHTML = `
+          <div class="space-y-2">
+            ${list.map(c=>`
+              <div class="flex items-center justify-between border border-[var(--border)] rounded-xl p-3">
+                <div>
+                  <div class="heading text-sm">${c.code}</div>
+                  <div class="text-sm text-slate-700">${c.title}</div>
+                </div>
+                <div class="text-sm pill px-2 py-1 rounded-full border border-[var(--border)]">${c.credits} credits</div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-sm text-slate-600">Registered this term</span>
+            <span class="heading text-lg">${total} credits</span>
+          </div>
+        `;
+      }
+      $("#confirmModal").classList.remove("hidden");
+    }
+    function closeModal(){
+      $("#confirmModal").classList.add("hidden");
+    }
+
+    // --------------------------
+    // Navbar small panels
+    // --------------------------
+    function bindNav(){
+      const notifyBtn = $("#btnNotify");
+      const notifyPanel = $("#notifyPanel");
+      const profileBtn = $("#btnProfile");
+      const profilePanel = $("#profilePanel");
+
+      function hideAll(){
+        notifyPanel.classList.add("hidden");
+        profilePanel.classList.add("hidden");
+      }
+      notifyBtn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const show = notifyPanel.classList.contains("hidden");
+        hideAll();
+        notifyPanel.classList.toggle("hidden", !show);
+      });
+      profileBtn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const show = profilePanel.classList.contains("hidden");
+        hideAll();
+        profilePanel.classList.toggle("hidden", !show);
+      });
+      document.addEventListener("click", ()=> hideAll());
+    }
+
+    // --------------------------
+    // Init
+    // --------------------------
+    function init(){
+      renderCourses();
+      renderRegistered();
+      renderSummary();
+      bindFilters();
+      bindNav();
+
+      // Confirm modal
+      $("#btnConfirm").addEventListener("click", (e)=>{
+        e.preventDefault();
+        openModal();
+      });
+      $("#modalClose").addEventListener("click", (e)=>{ e.preventDefault(); closeModal(); });
+      $("#modalClose2").addEventListener("click", (e)=>{ e.preventDefault(); closeModal(); });
+      $("#modalDone").addEventListener("click", (e)=>{ e.preventDefault(); closeModal(); });
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98222ea6167c9a5e',t:'MTc1ODM4MDMyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

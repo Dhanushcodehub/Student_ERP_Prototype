@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student ERP Portal Dashboard</title>
+
+  <!-- Fonts: Poppins (headings) & Roboto (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind = {};
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#4da6ff',
+            brandLight: '#e6f2ff',
+            soft: '#f5f5f5',
+            grayText: '#666666',
+          },
+          boxShadow: {
+            soft: '0 10px 25px rgba(0,0,0,0.06)',
+            card: '0 8px 20px rgba(77,166,255,0.15)',
+          },
+          fontFamily: {
+            poppins: ['Poppins', 'system-ui', 'sans-serif'],
+            roboto: ['Roboto', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            'card': '20px',
+          },
+          transitionTimingFunction: {
+            'soft': 'cubic-bezier(0.22, 1, 0.36, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Card background with a subtle white -> bluish-white gradient */
+    .card-surface {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    /* Hide scrollbar for a cleaner look while maintaining scroll functionality */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-white text-grayText font-roboto antialiased">
+  <!-- Top Navigation -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Left: Brand / Hamburger -->
+      <div class="flex items-center gap-3">
+        <button id="hamburgerBtn" class="md:hidden group relative inline-flex items-center justify-center w-10 h-10 rounded-full text-brand hover:bg-brandLight transition-colors" aria-label="Open menu">
+          <!-- Hamburger Icon -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+          <span class="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 group-hover:w-6 h-[2px] bg-brand transition-all duration-300"></span>
+        </button>
+
+        <div class="flex items-center gap-2 select-none">
+          <div class="w-9 h-9 rounded-xl bg-brand text-white grid place-items-center shadow-card">
+            <!-- Simple Logo Mark -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <path d="M4 12c0-4.418 3.582-8 8-8a8 8 0 1 1 0 16H6a2 2 0 0 1-2-2v-6z" fill="currentColor" opacity="0.9"/>
+              <path d="M8 12h8" stroke="white" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <span class="font-poppins font-semibold text-lg text-[#222]">Student ERP</span>
+        </div>
+      </div>
+
+      <!-- Desktop Nav (new!) -->
+    <nav class="hidden md:flex gap-4 ml-8 items-center">
+      <a href="dashboard.html" class="text-brand hover:underline font-poppins font-semibold">Dashboard</a>
+      <a href="profile.html" class="text-brand hover:underline font-poppins font-semibold">Academics</a>
+      <a href="attendance.html" class="text-brand hover:underline font-poppins font-semibold">Attendance</a>
+      <a href="result.html" class="text-brand hover:underline font-poppins font-semibold">Results</a>
+      <a href="#fee" class="text-brand hover:underline font-poppins font-semibold">Fees</a>
+      <a href="timetable.html" class="text-brand hover:underline font-poppins font-semibold">Timetable</a>
+      <a href="notice.html" class="text-brand hover:underline font-poppins font-semibold">Announcements</a>
+      <a href="profile.html" class="text-brand hover:underline font-poppins font-semibold">Settings</a>
+    </nav>
+
+      <!-- Right: Actions -->
+      <div class="flex items-center gap-2 sm:gap-3 ">
+        <!-- Notifications -->
+        <div class="relative">
+          <button id="notifBtn" class="group relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-brandLight text-brand transition-colors" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0m6 0H9"/>
+            </svg>
+            <span class="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 group-hover:w-6 h-[2px] bg-brand transition-all duration-300"></span>
+            <span class="absolute -top-1 -right-1 rounded-full bg-brand text-white text-[10px] px-1.5 py-0.5 shadow-card">3</span>
+          </button>
+          <!-- Notifications Dropdown -->
+          <div id="notifMenu" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-card shadow-soft border border-soft overflow-hidden">
+            <div class="px-4 py-3 border-b border-soft">
+              <p class="font-poppins font-semibold text-[#222]">Notifications</p>
+            </div>
+            <div class="max-h-64 overflow-auto no-scrollbar divide-y divide-soft">
+              <div class="flex items-start gap-3 px-4 py-3 hover:bg-brandLight/40">
+                <div class="text-brand">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 8v4l3 3"/>
+                    <circle cx="12" cy="12" r="9"/>
+                  </svg>
+                </div>
+                <div class="text-sm">
+                  <p class="text-[#222] font-medium">Assignment due tomorrow</p>
+                  <p class="text-grayText/70">DS Project Report - 10:00 AM</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 px-4 py-3 hover:bg-brandLight/40">
+                <div class="text-brand">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                </div>
+                <div class="text-sm">
+                  <p class="text-[#222] font-medium">Fee reminder</p>
+                  <p class="text-grayText/70">Pending: $350 - due Sep 25</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 px-4 py-3 hover:bg-brandLight/40">
+                <div class="text-brand">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 7h16M4 12h16M4 17h16"/>
+                  </svg>
+                </div>
+                <div class="text-sm">
+                  <p class="text-[#222] font-medium">New announcement</p>
+                  <p class="text-grayText/70">Hackathon registrations open</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="relative">
+          <button id="profileBtn" class="group inline-flex items-center gap-2 h-10 rounded-full px-2 sm:px-3 hover:bg-brandLight transition-colors" aria-haspopup="true" aria-expanded="false">
+            <!-- Avatar (Initials) -->
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-[#7ec2ff] text-white grid place-items-center shadow-card font-semibold text-sm">AR</div>
+            <div class="hidden sm:block text-sm font-medium">Dhanush</div>
+            <span class="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 group-hover:w-8 h-[2px] bg-brand transition-all duration-300"></span>
+          </button>
+          <!-- Profile Menu -->
+          <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-card shadow-soft border border-soft overflow-hidden">
+            <a href="profile.html" class="block px-4 py-2.5 hover:bg-brandLight/50 text-sm">My Profile</a>
+            <a href="#setting" class="block px-4 py-2.5 hover:bg-brandLight/50 text-sm">Settings</a>
+            <button id="logoutBtn" class="w-full text-left px-4 py-2.5 hover:bg-brandLight/50 text-sm text-red-500">Log out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed top-16 left-0 bottom-0 w-72 bg-brand text-white z-40 transform transition-transform duration-300 ease-soft md:hidden">
+        <div class="h-full flex flex-col">
+      <nav class="px-3 py-4 space-y-1">
+        <!-- Menu Item Template -->
+        <button data-route="dashboard" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] bg-white/10 hover:bg-white/20 transition-colors">
+          <!-- Dashboard Icon -->
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z"/>
+          </svg>
+          <span class="font-medium">Dashboard</span>
+        </button>
+
+        <button data-route="academics" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6l8-3 8 3-8 3-8-3z"/>
+            <path d="M12 9l8-3v6c0 5-3 9-8 9s-8-4-8-9V6l8 3z"/>
+          </svg>
+          <a href="profile.html"><span>Academics</span></a>
+        </button>
+
+        <button data-route="attendance" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5l-3 3V4a2 2 0 0 1 2-2h12"/>
+          </svg>
+          <a href="attendance.html"><span>Attendance</span></a>
+        </button>
+
+        <button data-route="results" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18"/>
+            <path d="M7 13l3 3 7-7"/>
+          </svg>
+          <a href="result.html"><span>results</span></a>
+        </button>
+
+        <button data-route="fees" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15V8a2 2 0 0 0-2-2h-7"/>
+            <path d="M3 11v7a2 2 0 0 0 2 2h7"/>
+            <path d="M7 7h.01M7 17h.01M17 7h.01M17 17h.01"/>
+          </svg>
+          <a href="fee.html"><span>Fees</span></a>
+        </button>
+
+        <button data-route="timetable" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          <a href="timetable.html"><span>Timetable</span></a>
+        </button>
+
+        <button data-route="announcements" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 11v2a1 1 0 0 0 1 1h3l4 4V6L7 10H4a1 1 0 0 0-1 1z"/>
+            <path d="M16 13h2a2 2 0 0 0 2-2V9"/>
+          </svg>
+          <a href="notice.html"><span>Announcements</span></a>
+        </button>
+
+        <button data-route="settings" class="menu-item group w-full flex items-center gap-3 px-4 py-3 rounded-[14px] hover:bg-white/20">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 3.4l.06.06c.47.47 1.14.61 1.82.33A1.65 1.65 0 0 0 10.43 2H11a2 2 0 1 1 4 0v.09c0 .68.39 1.29 1 1.51.68.28 1.35.14 1.82-.33l.06-.06A2 2 0 1 1 20.6 7.04l-.06.06c-.47.47-.61 1.14-.33 1.82.22.61.83 1 1.51 1H21a2 2 0 1 1 0 4h-.09c-.68 0-1.29.39-1.51 1z"/>
+          </svg>
+          <a href="profile.html"><span>Settings</span></a>
+        </button>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 z-30 hidden md:hidden"></div>
+
+  <!-- Main Content -->
+  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pl-64">
+    <!-- Hero / Welcome -->
+    <section class="card-surface rounded-card shadow-soft border border-soft p-6 sm:p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-brand to-[#7ec2ff] text-white grid place-items-center shadow-card font-poppins text-xl">
+            <!-- Profile SVG silhouette (simple) -->
+            <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4" fill="white" opacity="0.35"/>
+              <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="white" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-poppins font-bold text-2xl sm:text-3xl text-[#222]">Welcome, Ayesha</h1>
+            <p class="text-grayText mt-1">Keep up with your progress!</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2 text-sm bg-brandLight text-brand px-4 py-2 rounded-full">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+            Next: DS Exam - Oct 12
+          </div>
+          <a href="#timetable" class="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full bg-white border border-brand text-brand hover:bg-brandLight transition-colors">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            View Timetable
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      <!-- Attendance -->
+      <div class="card-surface rounded-card shadow-soft border border-soft p-6 flex items-center gap-4">
+        <div class="relative w-20 h-20">
+          <!-- SVG Circular Progress -->
+          <svg class="w-20 h-20 rotate-[-90deg]" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="#e9f4ff" stroke-width="12" fill="none"/>
+            <circle id="attendanceProgress" cx="50" cy="50" r="40" stroke="#4da6ff" stroke-width="12" stroke-linecap="round" fill="none" stroke-dasharray="251.327" stroke-dashoffset="251.327"/>
+          </svg>
+          <div class="absolute inset-0 grid place-items-center font-poppins font-bold text-[#222]">
+            <span id="attendanceLabel">0%</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-grayText/80">Attendance</p>
+          <p class="font-poppins text-lg text-[#222]">This Semester</p>
+        </div>
+      </div>
+
+      <!-- GPA / CGPA -->
+      <div class="card-surface rounded-card shadow-soft border border-soft p-6">
+        <p class="text-sm text-grayText/80">GPA</p>
+        <div class="flex items-baseline gap-2 mt-1">
+          <span class="font-poppins text-3xl text-[#222]" id="gpaValue">3.8</span>
+          <span class="text-sm text-grayText/70">/ 4.0</span>
+        </div>
+        <p class="mt-2 text-sm text-grayText">Great work this semester</p>
+      </div>
+
+      <!-- Fees -->
+      <div class="card-surface rounded-card shadow-soft border border-soft p-6">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-grayText/80">Fee Status</p>
+          <span class="px-2 py-0.5 text-xs rounded-full bg-[#fff5f5] text-[#cc0000]">Pending</span>
+        </div>
+        <div class="mt-2 flex items-end gap-2">
+          <span class="font-poppins text-2xl text-[#222]">$350</span>
+          <span class="text-sm text-grayText/70">due Sep 25</span>
+        </div>
+        <button id="remindFeeBtn" class="mt-4 inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full bg-brand text-white hover:opacity-90 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+          Remind Me
+        </button>
+      </div>
+
+      <!-- Upcoming Exam -->
+      <div class="card-surface rounded-card shadow-soft border border-soft p-6">
+        <p class="text-sm text-grayText/80">Upcoming</p>
+        <p class="font-poppins text-lg text-[#222] mt-1">Data Structures Exam</p>
+        <div class="mt-2 flex items-center gap-2 text-sm text-grayText">
+          <svg class="w-4 h-4 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 2v4M8 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+          Oct 12, 09:00 AM
+        </div>
+      </div>
+    </section>
+
+    <!-- Two Column: Announcements + Timetable -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Announcements -->
+      <div class="lg:col-span-2 card-surface rounded-card shadow-soft border border-soft p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-poppins font-semibold text-xl text-[#222]">Announcements & Notifications</h2>
+          <a href="#announcements" class="text-brand text-sm hover:underline">View all</a>
+        </div>
+        <div class="max-h-72 overflow-auto no-scrollbar space-y-3">
+          <!-- Item -->
+          <div class="flex items-start gap-3 p-4 rounded-[16px] bg-brandLight/60 hover:bg-brandLight transition">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 11v2a1 1 0 0 0 1 1h3l4 4V6L7 10H4a1 1 0 0 0-1 1z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[#222] font-medium">Library extended hours this week</p>
+              <p class="text-sm text-grayText/70">Mon–Fri, open until 10 PM</p>
+            </div>
+            <span class="text-xs text-grayText/70">Sep 18</span>
+          </div>
+
+          <div class="flex items-start gap-3 p-4 rounded-[16px] bg-white border border-soft hover:shadow-soft transition">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 2v4M8 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[#222] font-medium">Workshop: Resume Building 101</p>
+              <p class="text-sm text-grayText/70">Thursday, 3–5 PM, Hall A</p>
+            </div>
+            <span class="text-xs text-grayText/70">Sep 17</span>
+          </div>
+
+          <div class="flex items-start gap-3 p-4 rounded-[16px] bg-white border border-soft hover:shadow-soft transition">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[#222] font-medium">Submission: DBMS Lab Assignment</p>
+              <p class="text-sm text-grayText/70">Due Friday, upload on portal</p>
+            </div>
+            <span class="text-xs text-grayText/70">Sep 16</span>
+          </div>
+
+          <div class="flex items-start gap-3 p-4 rounded-[16px] bg-white border border-soft hover:shadow-soft transition">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6l8-3 8 3-8 3-8-3z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[#222] font-medium">Hackathon: Team registrations open</p>
+              <p class="text-sm text-grayText/70">Form closes on Sep 30</p>
+            </div>
+            <span class="text-xs text-grayText/70">Sep 14</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timetable -->
+      <div id="timetable" class="card-surface rounded-card shadow-soft border border-soft p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-poppins font-semibold text-xl text-[#222]">Weekly Timetable</h2>
+          <span class="text-xs text-brand bg-brandLight px-2 py-1 rounded-full">Today highlighted</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-grayText/70">
+                <th class="text-left py-2 pr-2">Time</th>
+                <th class="text-left py-2 px-2 day-head" data-day="1">Mon</th>
+                <th class="text-left py-2 px-2 day-head" data-day="2">Tue</th>
+                <th class="text-left py-2 px-2 day-head" data-day="3">Wed</th>
+                <th class="text-left py-2 px-2 day-head" data-day="4">Thu</th>
+                <th class="text-left py-2 px-2 day-head" data-day="5">Fri</th>
+              </tr>
+            </thead>
+            <tbody class="align-top">
+              <tr>
+                <td class="py-2 pr-2 text-grayText/70">09:00–11:00</td>
+                <td class="px-2 py-2 tt-cell" data-col="1"><div class="p-2 rounded-lg bg-white border border-soft">Mathematics</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="2"><div class="p-2 rounded-lg bg-white border border-soft">Physics Lab</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="3"><div class="p-2 rounded-lg bg-white border border-soft">Data Structures</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="4"><div class="p-2 rounded-lg bg-white border border-soft">Electronics</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="5"><div class="p-2 rounded-lg bg-white border border-soft">English</div></td>
+              </tr>
+              <tr>
+                <td class="py-2 pr-2 text-grayText/70">11:00–01:00</td>
+                <td class="px-2 py-2 tt-cell" data-col="1"><div class="p-2 rounded-lg bg-white border border-soft">DBMS</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="2"><div class="p-2 rounded-lg bg-white border border-soft">Mathematics</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="3"><div class="p-2 rounded-lg bg-white border border-soft">Operating Systems</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="4"><div class="p-2 rounded-lg bg-white border border-soft">Sports</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="5"><div class="p-2 rounded-lg bg-white border border-soft">DBMS Lab</div></td>
+              </tr>
+              <tr>
+                <td class="py-2 pr-2 text-grayText/70">02:00–04:00</td>
+                <td class="px-2 py-2 tt-cell" data-col="1"><div class="p-2 rounded-lg bg-white border border-soft">Programming</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="2"><div class="p-2 rounded-lg bg-white border border-soft">Free</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="3"><div class="p-2 rounded-lg bg-white border border-soft">Project</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="4"><div class="p-2 rounded-lg bg-white border border-soft">Seminar</div></td>
+                <td class="px-2 py-2 tt-cell" data-col="5"><div class="p-2 rounded-lg bg-white border border-soft">Programming Lab</div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom: Personalized Reminders -->
+    <section class="card-surface rounded-card shadow-soft border border-soft p-6 mb-16">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-poppins font-semibold text-xl text-[#222]">Reminders</h2>
+        <button id="clearDoneBtn" class="text-sm text-brand hover:underline">Clear completed</button>
+      </div>
+      <div id="reminderList" class="space-y-3">
+        <!-- Item -->
+        <div class="reminder-item flex items-center justify-between p-4 rounded-[16px] bg-white border border-soft">
+          <div class="flex items-center gap-3">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[#222] font-medium">Assignment due tomorrow</p>
+              <p class="text-sm text-grayText/70">DBMS Lab - 10 AM</p>
+            </div>
+          </div>
+          <button class="markBtn inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-brandLight text-brand hover:bg-brandLight/70">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+            Done
+          </button>
+        </div>
+
+        <div class="reminder-item flex items-center justify-between p-4 rounded-[16px] bg-white border border-soft">
+          <div class="flex items-center gap-3">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15V8a2 2 0 0 0-2-2h-7"/><path d="M3 11v7a2 2 0 0 0 2 2h7"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[#222] font-medium">Pay fee before 25th</p>
+              <p class="text-sm text-grayText/70">Pending: $350</p>
+            </div>
+          </div>
+          <button class="markBtn inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-brandLight text-brand hover:bg-brandLight/70">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+            Done
+          </button>
+        </div>
+
+        <div class="reminder-item flex items-center justify-between p-4 rounded-[16px] bg-white border border-soft">
+          <div class="flex items-center gap-3">
+            <div class="text-brand">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6l8-3 8 3-8 3-8-3z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[#222] font-medium">Join hackathon team</p>
+              <p class="text-sm text-grayText/70">Form closes Sep 30</p>
+            </div>
+          </div>
+          <button class="markBtn inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-full bg-brandLight text-brand hover:bg-brandLight/70">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+            Done
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-[60] hidden">
+    <div class="rounded-full bg-[#222] text-white px-4 py-2 shadow-soft text-sm flex items-center gap-2">
+      <span id="toastText">Action completed</span>
+    </div>
+  </div>
+
+  <script>
+    // Helper: Toast
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    let toastTimer = null;
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add('hidden'), 2200);
+    }
+
+    // Sidebar toggle (mobile)
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    function openSidebar() {
+      sidebar.classList.remove('-translate-x-full');
+      sidebarOverlay.classList.remove('hidden');
+    }
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      sidebarOverlay.classList.add('hidden');
+    }
+    hamburgerBtn.addEventListener('click', openSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+    // Close on any sidebar item click (mobile)
+    document.querySelectorAll('#sidebar .menu-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const route = btn.getAttribute('data-route');
+        if (route === 'dashboard') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          showToast('Dashboard refreshed');
+        } else {
+          showToast(`${route.charAt(0).toUpperCase() + route.slice(1)} is coming soon`);
+        }
+        if (window.innerWidth < 768) closeSidebar();
+      });
+    });
+
+    // Notifications dropdown
+    const notifBtn = document.getElementById('notifBtn');
+    const notifMenu = document.getElementById('notifMenu');
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notifMenu.classList.toggle('hidden');
+      profileMenu.classList.add('hidden');
+    });
+
+    // Profile dropdown
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileMenu.classList.toggle('hidden');
+      notifMenu.classList.add('hidden');
+    });
+
+    // Global click to close dropdowns
+    document.addEventListener('click', () => {
+      notifMenu.classList.add('hidden');
+      profileMenu.classList.add('hidden');
+    });
+
+    // "Log out" demo
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showToast('Logged out (demo)');
+      profileMenu.classList.add('hidden');
+    });
+
+    // Attendance circular progress animation
+    const attendanceProgress = document.getElementById('attendanceProgress');
+    const attendanceLabel = document.getElementById('attendanceLabel');
+    const circumference = 2 * Math.PI * 40; // r=40
+    const targetPercent = 92; // sample data
+    let current = 0;
+    function drawProgress(pct) {
+      const offset = circumference * (1 - pct / 100);
+      attendanceProgress.style.strokeDashoffset = offset.toString();
+      attendanceLabel.textContent = Math.round(pct) + '%';
+    }
+    attendanceProgress.style.strokeDasharray = String(circumference);
+    attendanceProgress.style.strokeDashoffset = String(circumference);
+    const progressInterval = setInterval(() => {
+      current += 2;
+      if (current >= targetPercent) {
+        current = targetPercent;
+        clearInterval(progressInterval);
+      }
+      drawProgress(current);
+    }, 20);
+
+    // Timetable: highlight today's column (Mon=1 ... Fri=5)
+    const dayHeads = document.querySelectorAll('.day-head');
+    const ttCells = document.querySelectorAll('.tt-cell');
+    const todayJS = new Date().getDay(); // Sun=0 ... Sat=6
+    const map = {1:1, 2:2, 3:3, 4:4, 5:5}; // Mon..Fri
+    const todayCol = map[todayJS] || null;
+    if (todayCol) {
+      dayHeads.forEach(h => {
+        if (Number(h.dataset.day) === todayCol) {
+          h.classList.add('bg-brandLight', 'text-brand', 'rounded-full', 'px-2');
+        }
+      });
+      ttCells.forEach(cell => {
+        if (Number(cell.dataset.col) === todayCol) {
+          cell.firstElementChild.classList.add('bg-brandLight/60', 'border-brand/30');
+        }
+      });
+    }
+
+    // Reminders: mark as done and clear completed
+    const reminderList = document.getElementById('reminderList');
+    reminderList.querySelectorAll('.markBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.reminder-item');
+        item.classList.toggle('opacity-60');
+        item.classList.toggle('line-through');
+        btn.textContent = item.classList.contains('line-through') ? 'Undo' : 'Done';
+        btn.classList.toggle('bg-brand');
+        btn.classList.toggle('text-white');
+        btn.classList.toggle('bg-brandLight');
+        btn.classList.toggle('text-brand');
+        showToast(item.classList.contains('line-through') ? 'Marked as completed' : 'Marked as active');
+      });
+    });
+    document.getElementById('clearDoneBtn').addEventListener('click', () => {
+      const doneItems = reminderList.querySelectorAll('.reminder-item.line-through');
+      doneItems.forEach(el => el.remove());
+      showToast('Cleared completed reminders');
+    });
+
+    // Fee "Remind Me" button
+    document.getElementById('remindFeeBtn').addEventListener('click', () => {
+      showToast('Reminder set for fees (demo)');
+    });
+
+    // Close dropdowns on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        notifMenu.classList.add('hidden');
+        profileMenu.classList.add('hidden');
+        if (window.innerWidth < 768) closeSidebar();
+      }
+    });
+
+    // Prevent anchor default navigation within the iframe; use smooth scroll instead
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+  
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'982217ef63799aa7',t:'MTc1ODM3OTM4OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
